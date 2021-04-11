@@ -94,12 +94,26 @@ mobile_map
 ```
 
 ```{r}
-mobile_inereased_radiation<-mobile %>% 
-  filter(as.POSIXct(Timestamp)>= as.POSIXct('2020-04-09 19:24:00') & as.POSIXct(Timestamp) <= as.POSIXct('2020-04-09 23:59:00'))
+#mobile_inereased_radiation<-mobile %>% 
+  #filter(as.POSIXct(Timestamp)>= as.POSIXct('2020-04-09 19:24:00') & as.POSIXct(Timestamp) <= as.POSIXct('2020-04-09 23:59:00'))
+```
+
+```{r}
+mobile_largest_radiation<-mobile %>% 
+  filter(Value>2000)
+```
+
+```{r}
+#plotting mobile data with map, largest datapoints
+mobile_map_largest<-ggplot(mobile_largest_radiation, aes(x=Long, y=Lat))+
+  annotation_custom(rasterGrob(image))+
+  geom_point(fill="blue", size=3, shape=23)
+  
+mobile_map_largest
 ```
 
 ```{r}
 # reading shape files
-#shp<-readOGR(dsn='.', layer="StHimark.shp")
+shp<-readOGR(dsn='.', layer="StHimark.shp")
 ```
 
