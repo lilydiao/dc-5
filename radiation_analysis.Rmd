@@ -7,5 +7,95 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(plotly)
+library(lubridate)
+library(ggplot2)
+library(dplyr)
+library(png)
+library(grid)
 ```
+
+```{r}
+# files and image
+mobile<-read.csv("MobileSensorReadings.csv")
+static<-read.csv("StaticSensorReadings.csv")
+image<-readPNG("StHimarkNeighborhoodMap.png")
+image<-rasterGrob(image, interpolate=TRUE)
+#View(static)
+```
+
+
+# Changes in Mobile Radiation Recording Overtime
+
+Our initial goal with radiation data is to identify the period of time where there is an increase in radiation as well as the location being affected.
+
+## Number of Mobile Recordings Send From 04-06 to 04-10
+
+We started off by oberving the changes the mobile radiation detection. We found that the recordings of the personally owned radiation app have the largest volume from 04-06 to 04-08's morning. Flutuations was observed from 04-08 to 04-10. This could correspond to scientists and other citizen's responds to the severity of the earth quake and subsequent leakage.
+```{r}
+mobile_by_second<-mobile %>% 
+  group_by(Timestamp) %>% 
+  summarise(count=n())
+```
+
+```{r}
+time_mobile_second <- mobile_by_second %>%
+  plot_ly(x = ~Timestamp, y = ~count) %>%
+  add_lines(alpha = 0.4) 
+time_mobile_second
+```
+
+The change in radiation values through time shows that there is an extremely large surge in radiation on at 02:43:25 on 04-09, with a measurement of 57.3452k cpm. Normal range of radiation should be between 30-50 cpm (https://ehs.iupui.edu/doc/rad/RST%20-%20geiger%20counters%205-00.pdf).
+```{r}
+time_mobile_value <- mobile %>%
+  plot_ly(x = ~Timestamp, y = ~Value) %>%
+  add_lines(alpha = 0.4) 
+time_mobile_value
+```
+
+However, other recordings aside of the extreme value are also out of the normal range. So we removed the outlier and report the value of radiation with time
+```{r}
+mobile_no_outlier<-mobile %>% 
+  filter(Value!=57345.200)
+```
+
+```{r}
+time_mobile_value_2 <- mobile_no_outlier %>%
+  plot_ly(x = ~Timestamp, y = ~Value) %>%
+  add_lines(alpha = 0.4) 
+time_mobile_value_2
+```
+
+
+```{r}
+
+```
+
+```{r}
+mobile_new<-mobile %>% 
+  mutate(date_time=ymd_hms(Timestamp))
+mobile_by_hour<-mobile_new %>% 
+  group_by(hour(date_time)) %>% 
+  summarize(count=n())
+```
+
+
+
+# Locations of Large Amount of Radiation Detected
+
+```{r}
+#subsizing the mobile data
+mobile_500<-sample_n(mobile, 500)
+```
+
+```{r}
+#plotting mobile data with map
+mobile_map<-ggplot(mobile_500, aes(x=Long, y=Lat))+
+  geom_point()+
+  annotation_custom(image)
+mobile_map
+```
+
+
 
