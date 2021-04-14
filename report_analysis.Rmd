@@ -1,0 +1,41 @@
+---
+title: "report analysis"
+author: "Lily Diao"
+date: "4/15/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(plotly)
+library(lubridate)
+library(ggplot2)
+library(dplyr)
+library(png)
+library(grid)
+library(rgdal)
+library(raster)
+library(sp)
+library(spdep)
+```
+
+```{r}
+report<-read.csv("mc1-reports-data.csv")
+```
+
+
+```{r}
+shake <- report %>%
+  plot_ly(x = ~time, y = ~shake_intensity) %>%
+  add_lines(alpha = 0.4) 
+shake
+```
+
+```{r}
+power <- report %>%
+  plot_ly(x = ~time, y = ~power) %>%
+  add_lines(alpha = 0.4) 
+power
+```
+

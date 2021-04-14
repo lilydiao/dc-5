@@ -17,6 +17,7 @@ library(grid)
 library(rgdal)
 library(raster)
 library(sp)
+library(spdep)
 ```
 
 ```{r}
@@ -24,6 +25,7 @@ library(sp)
 mobile<-read.csv("MobileSensorReadings.csv")
 static<-read.csv("StaticSensorReadings.csv")
 image<-readPNG("StHimarkNeighborhoodMap.png")
+image_raster<-rasterGrob(image, interpolate=TRUE)
 #View(static)
 ```
 
@@ -103,17 +105,31 @@ mobile_largest_radiation<-mobile %>%
   filter(Value>2000)
 ```
 
+geom_point(fill="blue", size=3, shape=23
+annotation_custom(image_raster, xmin=-119.9076, xmax=-119.8150, ymin=0.054810, ymax=0.210250)
 ```{r}
 #plotting mobile data with map, largest datapoints
 mobile_map_largest<-ggplot(mobile_largest_radiation, aes(x=Long, y=Lat))+
-  annotation_custom(rasterGrob(image))+
-  geom_point(fill="blue", size=3, shape=23)
+  annotation_custom(image_raster)+
+  geom_point()+
+  geom_jitter(width=0.005, height = 0.005)+
+  coord_fixed()
   
-mobile_map_largest
+ggplotly(mobile_map_largest)
+
 ```
 
 ```{r}
 # reading shape files
-shp<-readOGR(dsn='.', layer="StHimark.shp")
+#shp<-readOGR(dsn='.', layer="StHimark.shp")
+```
+
+```{r}
+read_sf("~/Documents/CSC 235/dc-5/StHimark.shp")
+```
+
+
+```{r}
+#shape<-readOGR(dsn = ".", layer = "StHimark")
 ```
 

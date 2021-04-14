@@ -1,0 +1,40 @@
+---
+title: "radiation_image"
+author: "Lily Diao"
+date: "4/15/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(plotly)
+library(lubridate)
+library(ggplot2)
+library(dplyr)
+library(png)
+library(grid)
+library(rgdal)
+library(raster)
+library(sp)
+library(spdep)
+```
+
+```{r}
+mobile_largest_radiation<-mobile %>% 
+  filter(Value>2000)
+```
+
+```{r}
+#plotting mobile data with map, largest datapoints
+mobile_map_largest<-ggplot(mobile_largest_radiation, aes(x=Long, y=Lat))+
+  annotation_custom(image_raster)+
+  geom_point()+
+  geom_jitter(width=0.005, height = 0.005)+
+  coord_fixed()
+ 
+mobile_map_largest 
+ggplotly(mobile_map_largest)
+
+```
+
