@@ -1,0 +1,60 @@
+---
+title: "text_analysis"
+author: "Lily Diao"
+date: "4/16/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Install
+install.packages("tm")  # for text mining
+install.packages("SnowballC") # for text stemming
+install.packages("wordcloud") # word-cloud generator 
+install.packages("RColorBrewer") # color palettes
+# Load
+library("tm")
+library("SnowballC")
+library("wordcloud")
+library("RColorBrewer")
+library(tidyverse)
+library(dplyr)
+library(tidytext)
+```
+
+```{r}
+text<-read.csv("YInt.csv")
+```
+
+```{r}
+# data wrangling of text message
+text_only<-text %>% 
+  select(message)
+text_only$message<-as.character(text_only$message)
+text_only$line <- seq.int(nrow(text_only))
+```
+
+```{r}
+# breaking up text and stop words
+text_only<-text_only %>%
+  unnest_tokens(word, message)
+data(stop_words)
+text_only <- text_only %>%
+  anti_join(stop_words)
+text_only
+```
+
+```{r}
+text_only %>% 
+  count(word, sort = TRUE)
+```
+
+```{r}
+text <- c("Because I could not stop for Death -",
+          "He kindly stopped for me -",
+          "The Carriage held but just Ourselves -",
+          "and Immortality")
+text_df <- tibble(line = 1:4, text = text)
+
+```
+
