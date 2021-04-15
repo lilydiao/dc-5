@@ -47,13 +47,41 @@ text_only
 ```{r}
 text_only %>% 
   count(word, sort = TRUE)
+text_only_count <-text_only %>% 
+  group_by(word) %>% 
+  summarise(count=n()) %>% 
+  arrange(desc(count))
+text_only_count         
+  
 ```
 
 ```{r}
 # bigram analysis
-dickens_bigrams <- dickens %>%
-  unnest_tokens(bigram, text, token = "ngrams", n = 2)
-dickens_bigrams
+text_bigram<-text %>% 
+  select(message)
+text_bigram$message<-as.character(text_bigram$message)
+text_bigram$line <- seq.int(nrow(text_bigram))
+text_bigram <- text_bigram %>%
+  unnest_tokens(bigram, message, token = "ngrams", n = 2)
+
+text_bigram_separated <- text_bigram %>%
+  separate(bigram, c("word1", "word2"), sep = " ")
+
+text_bigrams_filtered <-text_bigram_separated %>%
+  filter(!word1 %in% stop_words$word) %>%
+  filter(!word2 %in% stop_words$word)
+
+# new bigram counts:
+bigram_counts <- text_bigrams_filtered %>% 
+  count(word1, word2, sort = TRUE)
+bigram_counts
 ```
 
+```{r}
+# word cloud
+set.seed(1234)
+wordcloud(words = text_only_count$word, freq = text_only_count$count, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+```
 
