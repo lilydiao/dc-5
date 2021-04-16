@@ -23,6 +23,7 @@ library(spdep)
 ```{r}
 mobile_largest_radiation<-mobile %>% 
   filter(Value>2000)
+write.csv(mobile_largest_radiation, file = 'mobile_largest_radiation.csv')
 ```
 
 ```{r}
@@ -35,6 +36,10 @@ mobile_map_largest<-ggplot(mobile_largest_radiation, aes(x=Long, y=Lat))+
  
 mobile_map_largest 
 ggplotly(mobile_map_largest)
+
+```
+
+```{r}
 
 ```
 

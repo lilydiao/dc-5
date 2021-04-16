@@ -6,21 +6,32 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-# Install
-install.packages("tm")  # for text mining
-install.packages("SnowballC") # for text stemming
-install.packages("wordcloud") # word-cloud generator 
-install.packages("RColorBrewer") # color palettes
-# Load
-library("tm")
-library("SnowballC")
-library("wordcloud")
-library("RColorBrewer")
+# # Install
+# install.packages("tm")  # for text mining
+# install.packages("SnowballC") # for text stemming
+# install.packages("wordcloud") # word-cloud generator 
+# install.packages("RColorBrewer") # color palettes
+# # Load
+# library("tm")
+# library("SnowballC")
+# library("wordcloud")
+# library("RColorBrewer")
 library(tidyverse)
 library(dplyr)
 library(tidytext)
+library(tidyverse)
+library(plotly)
+library(lubridate)
+library(ggplot2)
+library(png)
+library(grid)
+library(rgdal)
+library(raster)
+library(sp)
+library(spdep)
+library(conflicted)
 ```
+
 
 ```{r}
 text<-read.csv("YInt.csv")
@@ -29,7 +40,8 @@ text<-read.csv("YInt.csv")
 ```{r}
 # data wrangling of text message
 text_only<-text %>% 
-  select(message)
+  dplyr::select(message)
+
 text_only$message<-as.character(text_only$message)
 text_only$line <- seq.int(nrow(text_only))
 ```
@@ -84,4 +96,5 @@ wordcloud(words = text_only_count$word, freq = text_only_count$count, min.freq =
           max.words=200, random.order=FALSE, rot.per=0.35, 
           colors=brewer.pal(8, "Dark2"))
 ```
+
 

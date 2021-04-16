@@ -24,7 +24,7 @@ library(spdep)
 report<-read.csv("mc1-reports-data.csv")
 ```
 
-
+# Earthquake Intensity with Time
 ```{r}
 shake <- report %>%
   plot_ly(x = ~time, y = ~shake_intensity) %>%
@@ -32,10 +32,85 @@ shake <- report %>%
 shake
 ```
 
+# choropleth graph with respect to power
 ```{r}
-power <- report %>%
-  plot_ly(x = ~time, y = ~power) %>%
-  add_lines(alpha = 0.4) 
-power
+shape<-read_sf("~/Documents/CSC 235/dc-5/StHimark.shp")
 ```
+
+```{r}
+plot(shape)
+```
+
+## power shortage 5 hours after the first major shake
+
+```{r}
+power<-report %>% 
+  dplyr::select(time, location, power) %>% 
+  dplyr::filter(as.POSIXct(time) > as.POSIXct('2020-04-08 08:45:00') & as.POSIXct(time) < as.POSIXct('2020-04-08 13:45:00') ) %>% 
+  group_by(location) %>% 
+  summarise(total_power=sum(power))
+power_shape<-shape %>% 
+  left_join(power, by = c("Id" = "location")) 
+```
+
+```{r}
+ggplot() +
+  geom_sf(data = power_shape, aes(fill = total_power)) 
+```
+
+## powershortage 30 hours after the first major shake
+```{r}
+power_30<-report %>% 
+  dplyr::select(time, location, power) %>% 
+  dplyr::filter(as.POSIXct(time) > as.POSIXct('2020-04-08 08:45:00') & as.POSIXct(time) < as.POSIXct('2020-04-09 14:45:00') ) %>% 
+  group_by(location) %>% 
+  summarise(total_power=sum(power))
+power_shape_30<-shape %>% 
+  left_join(power_30, by = c("Id" = "location")) 
+```
+
+```{r}
+ggplot() +
+  geom_sf(data = power_shape_30, aes(fill = total_power)) 
+```
+
+```{r}
+power<-report %>% 
+  dplyr::filter(power>=8) %>% 
+  dplyr::filter(as.POSIXct(time) <= as.POSIXct('2020-04-06 23:59:59')) %>% 
+  dplyr::mutate(hour=hour(time))
+power$hour<-as.factor(power$hour)
+```
+  
+## medical severity 5 hours after the first shake
+
+```{r}
+medical_5<-report %>% 
+  dplyr::select(time, location, medical) %>% 
+  dplyr::filter(as.POSIXct(time) > as.POSIXct('2020-04-08 08:45:00') & as.POSIXct(time) < as.POSIXct('2020-04-08 13:45:00') ) %>% 
+  group_by(location) %>% 
+  summarise(total_medical=mean(medical))
+medical_shape_5<-shape %>% 
+  left_join(medical_5, by = c("Id" = "location")) 
+```
+
+```{r}
+ggplot() +
+  geom_sf(data = medical_shape_5, aes(fill = total_medical)) 
+```
+
+```{r}
+road_graph<-ggplot(power, aes(x=hour))+
+  geom_bar()+
+  facet_wrap(~location)
+road_graph
+```
+
+```{r}
+road_graph <- road %>%
+  plot_ly(x = ~time, y = ~roads_and_bridges) %>%
+  add_lines(alpha = 0.4) 
+road_graph
+```
+
 
