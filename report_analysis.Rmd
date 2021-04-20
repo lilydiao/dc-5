@@ -28,7 +28,8 @@ report<-read.csv("mc1-reports-data.csv")
 ```{r}
 shake <- report %>%
   plot_ly(x = ~time, y = ~shake_intensity) %>%
-  add_lines(alpha = 0.4) 
+  add_lines(alpha = 0.4) %>% 
+  plotly::layout(title = "The Intensity of Earthquake Overtime")
 shake
 ```
 

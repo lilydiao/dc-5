@@ -26,6 +26,7 @@ mobile<-read.csv("MobileSensorReadings.csv")
 static<-read.csv("StaticSensorReadings.csv")
 image<-readPNG("StHimarkNeighborhoodMap.png")
 image_raster<-rasterGrob(image, interpolate=TRUE)
+static_location<-read.csv("StaticSensorLocations.csv")
 #View(static)
 ```
 
@@ -54,11 +55,33 @@ time_mobile_second
 ## The Value of Radiation Versus Time
 
 We then looked at the change in radiation level. The change in radiation values through time shows that there is an extremely large surge in radiation on at 02:43:25 on 04-09, with a measurement of 57.3452k cpm. Normal range of radiation should be between 30-50 cpm (https://ehs.iupui.edu/doc/rad/RST%20-%20geiger%20counters%205-00.pdf).
+
 ```{r}
-time_mobile_value <- mobile %>%
+first_shake<-mobile %>% 
+   dplyr::filter(as.POSIXct(Timestamp) > as.POSIXct('2020-04-08 08:45:00') & as.POSIXct(Timestamp) < as.POSIXct('2020-04-08 13:45:00') ) 
+```
+
+
+```{r}
+time_mobile_value <- first_shake %>%
   plot_ly(x = ~Timestamp, y = ~Value) %>%
-  add_lines(alpha = 0.4) 
+  add_lines(alpha = 0.4) %>% 
+  plotly::layout(title="Mobile Measurement of Radiation Five Hours After the First Shake", yaxis=list(title="Radiation Measure (cpm)"))
 time_mobile_value
+```
+
+```{r}
+first_static<-static %>% 
+   dplyr::filter(as.POSIXct(Timestamp) > as.POSIXct('2020-04-08 08:45:00') & as.POSIXct(Timestamp) < as.POSIXct('2020-04-08 13:45:00') ) 
+```
+
+
+```{r}
+p_static<-plot_ly(data=first_static, x = ~Timestamp, y = ~Value) %>%
+  add_lines(alpha = 0.4) %>% 
+  plotly::layout(title="Static Measurement of Radiation Five Hours After the First Shake", yaxis=list(title="Radiation Measure (cpm)"))
+p_static
+
 ```
 
 However, other recordings aside of the extreme value are also out of the normal range. So we removed the outlier and report the value of radiation with time. We noticed that starting from 04-06, the radiation level was higher than the recommended value, and from the evening of 04-09 to the morning of 04-10, the radiation level was high for a constant period of time. 
@@ -131,5 +154,29 @@ read_sf("~/Documents/CSC 235/dc-5/StHimark.shp")
 
 ```{r}
 #shape<-readOGR(dsn = ".", layer = "StHimark")
+```
+
+# abnormally high radiation after shake
+```{r}
+large_static<-first_static %>% 
+   dplyr::filter(as.POSIXct(Timestamp) == as.POSIXct('2020-04-08 09:48:15') | as.POSIXct(Timestamp) == as.POSIXct('2020-04-08 10:20:10') | as.POSIXct(Timestamp) == as.POSIXct('2020-04-08 09:51:25') |as.POSIXct(Timestamp) == as.POSIXct('2020-04-08 10:42:25') | as.POSIXct(Timestamp) == as.POSIXct('2020-04-08 12:10:55') | as.POSIXct(Timestamp) == as.POSIXct('2020-04-08 12:33:20') |as.POSIXct(Timestamp) == as.POSIXct('2020-04-08 12:56:10')) 
+```
+
+```{r}
+large_static_2<-first_static %>% 
+  dplyr::filter(Value==979.036 | Value==263.925 | Value==1076.755 | Value==106.595 | Value==719.531 | Value==579.794 | Value==898.681)
+write_csv(large_static_2, "large_static.csv")
+```
+
+```{r}
+static_value<-first_static %>% 
+  group_by(Sensor.id) %>% 
+  summarise(average_radiation=mean(Value))
+```
+
+```{r}
+static_combined<-large_static_2 %>% 
+  left_join(static_location, by = "Sensor.id")
+write.csv(static_combined, "static_combined_2.csv")
 ```
 
